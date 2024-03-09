@@ -7,7 +7,7 @@ async fn main() -> std::io::Result<()> {
     let os = std::env::consts::OS;
 
     // show the OS
-    println!("OS: {}", os);
+    println!("Detected os: {}", os);
 
     match os {
         "linux" => {

