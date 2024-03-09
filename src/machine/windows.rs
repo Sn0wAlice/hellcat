@@ -27,7 +27,7 @@ pub async fn hellcat_windows() {
         "Documents",
         "Downloads",
         "Music",
-        "Puctures",
+        "Pictures",
         "Videos"
     ];
 
