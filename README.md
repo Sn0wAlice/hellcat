@@ -11,7 +11,7 @@ Ransomware for SOC analyst. Detect, and try to catch me if you can | for educati
 
 First step is to download the executable from the [release](https://github.com/Sn0wAlice/hellcat/releases) with the good OS
 
-Now you can execute the code in your **SANBOX**
+Now you can execute the code in your **SANDBOX**
 - `> ./hellcat-<os>(.exe)` will start the ransomware
 - `> ./hellcat-<os>(.exe) -d` will emulate file recuperation
 
