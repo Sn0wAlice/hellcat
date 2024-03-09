@@ -1,0 +1,121 @@
+name: Build
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      upgrade: 
+        type: choice
+        description: 'Upgrade'
+        required: true
+        options:
+          - patch
+          - minor
+          - major
+  
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+
+  ## get the old version and increment it
+  newversion:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.step1.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: check
+        id: step1
+        run: |
+          # get version from Cargo.toml
+          VERSION=$(grep -oP 'version = "\K[^"]+' Cargo.toml)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  ## Create a release in github to save the tag
+  release:
+    needs: newversion
+    runs-on: ubuntu-latest
+
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{needs.newversion.outputs.version}}
+          release_name: Release ${{needs.newversion.outputs.version}}
+          body: |
+            See git log for changes
+          draft: false
+          prerelease: false
+      
+      - name: Push tag
+        run: |
+          git tag ${{needs.newversion.outputs.version}}
+          git push origin ${{needs.newversion.outputs.version}}
+
+
+  publish:
+    needs: release
+    name: Publish for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        name: [
+            linux,
+            windows,
+            macos
+        ]
+
+        include:
+          - name: linux
+            os: ubuntu-latest
+            artifact_name: target/release/hellcat
+            asset_name: hellcat-linux
+          - name: windows
+            os: windows-latest
+            artifact_name: target/release/hellcat.exe
+            asset_name: hellcat-windows
+          - name: macos
+            os: macos-latest
+            artifact_name: target/release/hellcat
+            asset_name: hellcat-macos
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Upload binaries to release
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.asset_name }}
+          path: ${{ matrix.artifact_name }}
+
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ${{ matrix.artifact_name }}
+          asset_name: ${{ matrix.asset_name }}
+          asset_content_type: application/octet-stream
