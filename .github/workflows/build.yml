@@ -87,7 +87,7 @@ jobs:
           - name: windows
             os: windows-latest
             artifact_name: target/release/hellcat.exe
-            asset_name: hellcat-windows
+            asset_name: hellcat-windows.exe
           - name: macos
             os: macos-latest
             artifact_name: target/release/hellcat
