@@ -9,6 +9,8 @@ pub async fn hellcat_windows() {
     let home = dirs::home_dir().unwrap();
     let home_str = home.to_str().unwrap();
 
+    println!("Home {}", home_str);
+
     // get the args
     let mut decrypt:bool = false;
 
