@@ -3,15 +3,6 @@ name: Build
 # Controls when the workflow will run
 on:
   workflow_dispatch:
-    inputs:
-      upgrade: 
-        type: choice
-        description: 'Upgrade'
-        required: true
-        options:
-          - patch
-          - minor
-          - major
   
 permissions:
   contents: write

